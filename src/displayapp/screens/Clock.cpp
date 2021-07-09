@@ -15,6 +15,7 @@
 #include "WatchFaceDigital.h"
 #include "WatchFaceAnalog.h"
 #include "PineTimeStyle.h"
+#include "WatchFaceIGraph.h"
 
 using namespace Pinetime::Applications::Screens;
 
@@ -45,6 +46,8 @@ Clock::Clock(DisplayApp* app,
         case 2:
           return PineTimeStyleScreen();
           break;
+        case 3:
+          return WatchFaceIGraphScreen();
       }
       return WatchFaceDigitalScreen();
     }()} {
@@ -76,18 +79,31 @@ std::unique_ptr<Screen> Clock::WatchFaceDigitalScreen() {
 }
 
 std::unique_ptr<Screen> Clock::WatchFaceAnalogScreen() {
-  return std::make_unique<Screens::WatchFaceAnalog>(
-    app, dateTimeController, batteryController, bleController, notificatioManager, settingsController);
+  return std::make_unique<Screens::WatchFaceAnalog>(app,
+                                                    dateTimeController,
+                                                    batteryController,
+                                                    bleController,
+                                                    notificatioManager,
+                                                    settingsController);
 }
 
 std::unique_ptr<Screen> Clock::PineTimeStyleScreen() {
   return std::make_unique<Screens::PineTimeStyle>(app,
-                                                     dateTimeController,
-                                                     batteryController,
-                                                     bleController,
-                                                     notificatioManager,
-                                                     settingsController,
-                                                     motionController);
+                                                  dateTimeController,
+                                                  batteryController,
+                                                  bleController,
+                                                  notificatioManager,
+                                                  settingsController,
+                                                  motionController);
+}
+
+std::unique_ptr<Screen> Clock::WatchFaceIGraphScreen() {
+  return std::make_unique<Screens::WatchFaceIGraph>(app,
+                                                    dateTimeController,
+                                                    batteryController,
+                                                    bleController,
+                                                    notificatioManager,
+                                                    settingsController);
 }
 
 /*
