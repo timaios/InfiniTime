@@ -103,7 +103,8 @@ std::unique_ptr<Screen> Clock::WatchFaceIGraphScreen() {
                                                     batteryController,
                                                     bleController,
                                                     notificatioManager,
-                                                    settingsController);
+                                                    settingsController,
+						    motionController);
 }
 
 /*

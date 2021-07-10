@@ -10,6 +10,7 @@
 #include "components/battery/BatteryController.h"
 #include "components/ble/BleController.h"
 #include "components/ble/NotificationManager.h"
+#include "components/motion/MotionController.h"
 
 namespace Pinetime {
   namespace Controllers {
@@ -28,7 +29,8 @@ namespace Pinetime {
                         Controllers::Battery& batteryController,
                         Controllers::Ble& bleController,
                         Controllers::NotificationManager& notificationManager,
-                        Controllers::Settings& settingsController);
+                        Controllers::Settings& settingsController,
+			Controllers::MotionController& motionController);
 
         ~WatchFaceIGraph() override;
 
@@ -40,6 +42,7 @@ namespace Pinetime {
         uint8_t prevHours;
         uint8_t prevMinutes;
         uint8_t prevSeconds;
+	uint32_t prevSteps;
 
         lv_obj_t *lblDayOfWeek;
         lv_obj_t *lblDayOfMonth;
@@ -72,9 +75,11 @@ namespace Pinetime {
         Controllers::Ble& bleController;
         Controllers::NotificationManager& notificationManager;
         Controllers::Settings& settingsController;
+	Controllers::MotionController& motionController;
 
         void UpdateHands(uint8_t hours, uint8_t minutes, uint8_t seconds, bool forceUpdate = false);
-        int16_t roundedCoord(double value);
+        int16_t RoundedCoord(double value);
+	uint16_t StepsEndAngle(uint32_t steps);
       };
     }
   }

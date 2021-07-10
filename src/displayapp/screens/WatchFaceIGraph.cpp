@@ -19,13 +19,15 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
                                  Controllers::Battery& batteryController,
                                  Controllers::Ble& bleController,
                                  Controllers::NotificationManager& notificationManager,
-                                 Controllers::Settings& settingsController)
+                                 Controllers::Settings& settingsController,
+				 Controllers::MotionController& motionController)
   : Screen(app),
     dateTimeController {dateTimeController},
     batteryController {batteryController},
     bleController {bleController},
     notificationManager {notificationManager},
-    settingsController {settingsController} {
+    settingsController {settingsController},
+    motionController {motionController} {
 
   settingsController.SetClockFace(3);
 
@@ -38,6 +40,7 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
   prevHours = dateTimeController.Hours();
   prevMinutes = dateTimeController.Minutes();
   prevSeconds = dateTimeController.Seconds();
+  prevSteps = motionController.NbSteps();
 
   lblDayOfWeek = lv_label_create(lv_scr_act(), NULL);
   lv_obj_set_style_local_text_color(lblDayOfWeek, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xfe3b30));
@@ -54,9 +57,8 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
   lv_obj_set_auto_realign(lblDayOfMonth, true);
 
   arcSteps = lv_arc_create(lv_scr_act(), NULL);
-  lv_arc_set_rotation(arcSteps, -90);
   lv_arc_set_bg_angles(arcSteps, 0, 360);
-  lv_arc_set_angles(arcSteps, 0, 90);
+  lv_arc_set_angles(arcSteps, 270, StepsEndAngle(prevSteps));
   lv_obj_set_size(arcSteps, 64, 64);
   lv_obj_align(arcSteps, NULL, LV_ALIGN_CENTER, 0, 60);
 
@@ -125,16 +127,16 @@ void WatchFaceIGraph::UpdateHands(uint8_t hours, uint8_t minutes, uint8_t second
     double sine = sin(radians);
     double cosine = cos(radians);
 
-    hoursHandInnerPoints[0].x = cx + roundedCoord(5.0 * sine);
-    hoursHandInnerPoints[0].y = cy - roundedCoord(5.0 * cosine);
-    hoursHandInnerPoints[1].x = cx + roundedCoord(20.0 * sine);
-    hoursHandInnerPoints[1].y = cy - roundedCoord(20.0 * cosine);
+    hoursHandInnerPoints[0].x = cx + RoundedCoord(5.0 * sine);
+    hoursHandInnerPoints[0].y = cy - RoundedCoord(5.0 * cosine);
+    hoursHandInnerPoints[1].x = cx + RoundedCoord(20.0 * sine);
+    hoursHandInnerPoints[1].y = cy - RoundedCoord(20.0 * cosine);
     lv_line_set_points(hoursHandInner, hoursHandInnerPoints, 2);
 
-    hoursHandOuterPoints[0].x = cx + roundedCoord(20.0 * sine);
-    hoursHandOuterPoints[0].y = cy - roundedCoord(20.0 * cosine);
-    hoursHandOuterPoints[1].x = cx + roundedCoord(60.0 * sine);
-    hoursHandOuterPoints[1].y = cy - roundedCoord(60.0 * cosine);
+    hoursHandOuterPoints[0].x = cx + RoundedCoord(20.0 * sine);
+    hoursHandOuterPoints[0].y = cy - RoundedCoord(20.0 * cosine);
+    hoursHandOuterPoints[1].x = cx + RoundedCoord(60.0 * sine);
+    hoursHandOuterPoints[1].y = cy - RoundedCoord(60.0 * cosine);
     lv_line_set_points(hoursHandOuter, hoursHandOuterPoints, 2);
 
   }
@@ -145,16 +147,16 @@ void WatchFaceIGraph::UpdateHands(uint8_t hours, uint8_t minutes, uint8_t second
     double sine = sin(radians);
     double cosine = cos(radians);
 
-    minutesHandInnerPoints[0].x = cx + roundedCoord(5.0 * sine);
-    minutesHandInnerPoints[0].y = cy - roundedCoord(5.0 * cosine);
-    minutesHandInnerPoints[1].x = cx + roundedCoord(20.0 * sine);
-    minutesHandInnerPoints[1].y = cy - roundedCoord(20.0 * cosine);
+    minutesHandInnerPoints[0].x = cx + RoundedCoord(5.0 * sine);
+    minutesHandInnerPoints[0].y = cy - RoundedCoord(5.0 * cosine);
+    minutesHandInnerPoints[1].x = cx + RoundedCoord(20.0 * sine);
+    minutesHandInnerPoints[1].y = cy - RoundedCoord(20.0 * cosine);
     lv_line_set_points(minutesHandInner, minutesHandInnerPoints, 2);
 
-    minutesHandOuterPoints[0].x = cx + roundedCoord(20.0 * sine);
-    minutesHandOuterPoints[0].y = cy - roundedCoord(20.0 * cosine);
-    minutesHandOuterPoints[1].x = cx + roundedCoord(104.0 * sine);
-    minutesHandOuterPoints[1].y = cy - roundedCoord(104.0 * cosine);
+    minutesHandOuterPoints[0].x = cx + RoundedCoord(20.0 * sine);
+    minutesHandOuterPoints[0].y = cy - RoundedCoord(20.0 * cosine);
+    minutesHandOuterPoints[1].x = cx + RoundedCoord(104.0 * sine);
+    minutesHandOuterPoints[1].y = cy - RoundedCoord(104.0 * cosine);
     lv_line_set_points(minutesHandOuter, minutesHandOuterPoints, 2);
 
   }
@@ -165,16 +167,16 @@ void WatchFaceIGraph::UpdateHands(uint8_t hours, uint8_t minutes, uint8_t second
     double sine = sin(radians);
     double cosine = cos(radians);
 
-    secondsHandPoints[0].x = cx + roundedCoord(4.0 * sine);
-    secondsHandPoints[0].y = cy - roundedCoord(4.0 * cosine);
-    secondsHandPoints[1].x = cx + roundedCoord(114.0 * sine);
-    secondsHandPoints[1].y = cy - roundedCoord(114.0 * cosine);
+    secondsHandPoints[0].x = cx + RoundedCoord(4.0 * sine);
+    secondsHandPoints[0].y = cy - RoundedCoord(4.0 * cosine);
+    secondsHandPoints[1].x = cx + RoundedCoord(114.0 * sine);
+    secondsHandPoints[1].y = cy - RoundedCoord(114.0 * cosine);
     lv_line_set_points(secondsHand, secondsHandPoints, 2);
 
-    secondsTailPoints[0].x = cx - roundedCoord(4.0 * sine);
-    secondsTailPoints[0].y = cy + roundedCoord(4.0 * cosine);
-    secondsTailPoints[1].x = cx - roundedCoord(20.0 * sine);
-    secondsTailPoints[1].y = cy + roundedCoord(20.0 * cosine);
+    secondsTailPoints[0].x = cx - RoundedCoord(4.0 * sine);
+    secondsTailPoints[0].y = cy + RoundedCoord(4.0 * cosine);
+    secondsTailPoints[1].x = cx - RoundedCoord(20.0 * sine);
+    secondsTailPoints[1].y = cy + RoundedCoord(20.0 * cosine);
     lv_line_set_points(secondsTail, secondsTailPoints, 2);
 
   }
@@ -188,12 +190,16 @@ bool WatchFaceIGraph::Refresh() {
   uint8_t hours = dateTimeController.Hours();
   uint8_t minutes = dateTimeController.Minutes();
   uint8_t seconds = dateTimeController.Seconds();
+  uint32_t steps = motionController.NbSteps();
 
   if (dayOfWeek != prevDayOfWeek)
     lv_label_set_text_static(lblDayOfWeek, Controllers::DateTime::DayOfWeekShortToString(dayOfWeek));
 
   if (dayOfMonth != prevDayOfMonth)
     lv_label_set_text_fmt(lblDayOfMonth, "%d", static_cast<int>(dayOfMonth));
+
+  if (steps != prevSteps)
+    lv_arc_set_angles(arcSteps, 270, StepsEndAngle(steps));
 
   UpdateHands(hours, minutes, seconds);
 
@@ -202,14 +208,25 @@ bool WatchFaceIGraph::Refresh() {
   prevHours = hours;
   prevMinutes = minutes;
   prevSeconds = seconds;
+  prevSteps = steps;
 
   return true;
 
 }
 
-int16_t WatchFaceIGraph::roundedCoord(double value) {
+int16_t WatchFaceIGraph::RoundedCoord(double value) {
   if (value < 0.0)
     return static_cast<int16_t>(value - 0.5);
   else
     return static_cast<int16_t>(value + 0.5);
+}
+
+uint16_t WatchFaceIGraph::StepsEndAngle(uint32_t value) {
+  double steps = static_cast<double>(value);
+  double goal = static_cast<double>(settingsController.GetStepsGoal());
+  double angle = ((steps >= goal) || (goal <= 0.0)) ? 360.0 : steps / goal * 360.0;
+  if (angle < 90.0)
+    return static_cast<uint16_t>(270.0 + angle + 0.5);
+  else
+    return static_cast<uint16_t>(angle - 90.0 + 0.5);
 }
