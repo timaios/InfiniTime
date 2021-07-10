@@ -41,6 +41,7 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
   prevMinutes = dateTimeController.Minutes();
   prevSeconds = dateTimeController.Seconds();
   prevSteps = motionController.NbSteps();
+  prevBatteryPercent = batteryController.PercentRemaining();
 
   lblDayOfWeek = lv_label_create(lv_scr_act(), NULL);
   lv_obj_set_style_local_text_color(lblDayOfWeek, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0xfe3b30));
@@ -63,14 +64,44 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
   lv_obj_align(arcSteps, NULL, LV_ALIGN_CENTER, 0, 60);
 
   lv_style_init(&arcStepsStyle_bg);
-  lv_style_set_line_width(&arcStepsStyle_bg, LV_STATE_DEFAULT, 6);
+  lv_style_set_line_width(&arcStepsStyle_bg, LV_STATE_DEFAULT, 8);
   lv_style_set_line_color(&arcStepsStyle_bg, LV_STATE_DEFAULT, lv_color_hex(0x213300));
   lv_obj_add_style(arcSteps, LV_ARC_PART_BG, &arcStepsStyle_bg);
 
   lv_style_init(&arcStepsStyle_fg);
-  lv_style_set_line_width(&arcStepsStyle_fg, LV_STATE_DEFAULT, 6);
+  lv_style_set_line_width(&arcStepsStyle_fg, LV_STATE_DEFAULT, 8);
   lv_style_set_line_color(&arcStepsStyle_fg, LV_STATE_DEFAULT, lv_color_hex(0xa6fe00));
   lv_obj_add_style(arcSteps, LV_ARC_PART_INDIC, &arcStepsStyle_fg);
+
+  arcBattery = lv_arc_create(lv_scr_act(), NULL);
+  lv_arc_set_bg_angles(arcBattery, 30, 60);
+  lv_arc_set_angles(arcBattery, 30, 60);
+  lv_obj_set_size(arcBattery, 272, 272);
+  lv_obj_align(arcBattery, NULL, LV_ALIGN_CENTER, 0, 0);
+
+  lblBattery = lv_label_create(lv_scr_act(), NULL);
+  lv_obj_set_style_local_text_color(lblBattery, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x04de71));
+  lv_label_set_text_fmt(lblBattery, "%d", prevBatteryPercent);
+  lv_label_set_align(lblBattery, LV_LABEL_ALIGN_RIGHT);
+  lv_obj_align(lblBattery, NULL, LV_ALIGN_IN_BOTTOM_RIGHT, 0, 0);
+  lv_obj_set_auto_realign(lblBattery, true);
+
+  lv_style_init(&arcBatteryStyle_bg);
+  lv_style_set_line_width(&arcBatteryStyle_bg, LV_STATE_DEFAULT, 8);
+  lv_style_set_line_color(&arcBatteryStyle_bg, LV_STATE_DEFAULT, lv_color_hex(0x014d27));
+  lv_obj_add_style(arcBattery, LV_ARC_PART_BG, &arcBatteryStyle_bg);
+
+  lv_style_init(&arcBatteryStyle_fg);
+  lv_style_set_line_width(&arcBatteryStyle_fg, LV_STATE_DEFAULT, 8);
+  lv_style_set_line_color(&arcBatteryStyle_fg, LV_STATE_DEFAULT, lv_color_hex(0x04de71));
+  lv_obj_add_style(arcBattery, LV_ARC_PART_INDIC, &arcBatteryStyle_fg);
+
+//  lblDebug = lv_label_create(lv_scr_act(), NULL);
+//  lv_obj_set_style_local_text_color(lblDebug, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_WHITE);
+//  lv_label_set_text_static(lblDebug, "Debug");
+//  lv_label_set_align(lblDebug, LV_LABEL_ALIGN_CENTER);
+//  lv_obj_align(lblDebug, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
+//  lv_obj_set_auto_realign(lblDebug, true);
 
   hoursHandInner = lv_line_create(lv_scr_act(), NULL);
   hoursHandOuter = lv_line_create(lv_scr_act(), NULL);
@@ -101,6 +132,7 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
   lv_obj_add_style(secondsTail, LV_LINE_PART_MAIN, &secondsHandStyle);
 
   UpdateHands(prevHours, prevMinutes, prevSeconds, true);
+  UpdateBatteryPercent(prevBatteryPercent, true);
 
 }
 
@@ -108,6 +140,8 @@ WatchFaceIGraph::~WatchFaceIGraph() {
 
   lv_style_reset(&arcStepsStyle_bg);
   lv_style_reset(&arcStepsStyle_fg);
+  lv_style_reset(&arcBatteryStyle_bg);
+  lv_style_reset(&arcBatteryStyle_fg);
   lv_style_reset(&hmHandStyleInner);
   lv_style_reset(&hmHandStyleOuter);
   lv_style_reset(&secondsHandStyle);
@@ -183,6 +217,18 @@ void WatchFaceIGraph::UpdateHands(uint8_t hours, uint8_t minutes, uint8_t second
 
 }
 
+void WatchFaceIGraph::UpdateBatteryPercent(int batteryPercent, bool forceUpdate) {
+  if ((batteryPercent != prevBatteryPercent) || forceUpdate) {
+    int angle = static_cast<int>(static_cast<double>(batteryPercent) / 100.0 * 30.0 + 0.5);
+    if (angle > 30)
+      angle = 30;
+    else if (angle < 0)
+      angle = 0;
+    lv_arc_set_angles(arcBattery, static_cast<uint16_t>(60 - angle), 60);
+    lv_label_set_text_fmt(lblBattery, "%d", batteryPercent);
+  }
+}
+
 bool WatchFaceIGraph::Refresh() {
 
   Pinetime::Controllers::DateTime::Days dayOfWeek = dateTimeController.DayOfWeek();
@@ -191,6 +237,7 @@ bool WatchFaceIGraph::Refresh() {
   uint8_t minutes = dateTimeController.Minutes();
   uint8_t seconds = dateTimeController.Seconds();
   uint32_t steps = motionController.NbSteps();
+  int batteryPercent = batteryController.PercentRemaining();
 
   if (dayOfWeek != prevDayOfWeek)
     lv_label_set_text_static(lblDayOfWeek, Controllers::DateTime::DayOfWeekShortToString(dayOfWeek));
@@ -202,6 +249,7 @@ bool WatchFaceIGraph::Refresh() {
     lv_arc_set_angles(arcSteps, 270, StepsEndAngle(steps));
 
   UpdateHands(hours, minutes, seconds);
+  UpdateBatteryPercent(batteryPercent);
 
   prevDayOfWeek = dayOfWeek;
   prevDayOfMonth = dayOfMonth;
@@ -209,6 +257,7 @@ bool WatchFaceIGraph::Refresh() {
   prevMinutes = minutes;
   prevSeconds = seconds;
   prevSteps = steps;
+  prevBatteryPercent = batteryPercent;
 
   return true;
 
