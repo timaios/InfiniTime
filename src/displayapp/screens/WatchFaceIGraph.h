@@ -30,7 +30,7 @@ namespace Pinetime {
                         Controllers::Ble& bleController,
                         Controllers::NotificationManager& notificationManager,
                         Controllers::Settings& settingsController,
-			Controllers::MotionController& motionController);
+                        Controllers::MotionController& motionController);
 
         ~WatchFaceIGraph() override;
 
@@ -42,8 +42,8 @@ namespace Pinetime {
         uint8_t prevHours;
         uint8_t prevMinutes;
         uint8_t prevSeconds;
-	uint32_t prevSteps;
-	int prevBatteryPercent;
+        uint32_t prevSteps;
+        int prevBatteryPercent;
 
         lv_obj_t *lblDayOfWeek;
         lv_obj_t *lblDayOfMonth;
@@ -52,10 +52,10 @@ namespace Pinetime {
         lv_style_t arcStepsStyle_bg;
         lv_style_t arcStepsStyle_fg;
 
-	lv_obj_t *arcBattery;
-	lv_obj_t *lblBattery;
-	lv_style_t arcBatteryStyle_bg;
-	lv_style_t arcBatteryStyle_fg;
+        lv_obj_t *arcBattery;
+        lv_obj_t *lblBattery;
+        lv_style_t arcBatteryStyle_bg;
+        lv_style_t arcBatteryStyle_fg;
 
         lv_obj_t *hoursHandInner;
         lv_point_t hoursHandInnerPoints[2];
@@ -83,12 +83,12 @@ namespace Pinetime {
         Controllers::Ble& bleController;
         Controllers::NotificationManager& notificationManager;
         Controllers::Settings& settingsController;
-	Controllers::MotionController& motionController;
+        Controllers::MotionController& motionController;
 
         void UpdateHands(uint8_t hours, uint8_t minutes, uint8_t seconds, bool forceUpdate = false);
-	void UpdateBatteryPercent(int batteryPercent, bool forceUpdate = false);
+        void UpdateBatteryPercent(int batteryPercent, bool forceUpdate = false);
         int16_t RoundedCoord(double value);
-	uint16_t StepsEndAngle(uint32_t steps);
+        uint16_t StepsEndAngle(uint32_t steps);
       };
     }
   }

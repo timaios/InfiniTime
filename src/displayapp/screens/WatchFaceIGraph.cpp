@@ -20,7 +20,7 @@ WatchFaceIGraph::WatchFaceIGraph(Pinetime::Applications::DisplayApp* app,
                                  Controllers::Ble& bleController,
                                  Controllers::NotificationManager& notificationManager,
                                  Controllers::Settings& settingsController,
-				 Controllers::MotionController& motionController)
+                                 Controllers::MotionController& motionController)
   : Screen(app),
     dateTimeController {dateTimeController},
     batteryController {batteryController},
@@ -270,12 +270,12 @@ int16_t WatchFaceIGraph::RoundedCoord(double value) {
     return static_cast<int16_t>(value + 0.5);
 }
 
-uint16_t WatchFaceIGraph::StepsEndAngle(uint32_t value) {
-  double steps = static_cast<double>(value);
-  double goal = static_cast<double>(settingsController.GetStepsGoal());
-  double angle = ((steps >= goal) || (goal <= 0.0)) ? 360.0 : steps / goal * 360.0;
-  if (angle < 90.0)
-    return static_cast<uint16_t>(270.0 + angle + 0.5);
-  else
-    return static_cast<uint16_t>(angle - 90.0 + 0.5);
+uint16_t WatchFaceIGraph::StepsEndAngle(uint32_t steps) {
+  double s = static_cast<double>(steps);
+  double g = static_cast<double>(settingsController.GetStepsGoal());
+  double angle = ((s >= g) || (g <= 0.0)) ? 360.0 : s / g * 360.0;
+  uint16_t endAngle = static_cast<uint16_t>((angle < 90.0) ? (270.0 + angle + 0.5) : (angle - 90.0 + 0.5));
+  if ((endAngle == 270) && (s > (0.5 * g)))
+    endAngle = 269;
+  return endAngle;
 }
