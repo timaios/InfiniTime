@@ -495,6 +495,8 @@ list(APPEND SOURCE_FILES
         components/heartrate/Biquad.cpp
         components/heartrate/Ptagc.cpp
         components/heartrate/HeartRateController.cpp
+
+        components/weather/WeatherData.cpp
         )
 
 list(APPEND RECOVERY_SOURCE_FILES
