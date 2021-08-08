@@ -44,6 +44,8 @@ namespace Pinetime {
         uint8_t prevSeconds;
         uint32_t prevSteps;
         int prevBatteryPercent;
+        bool prevCharging;
+        bool prevBleConnected;
 
         lv_obj_t *lblDayOfWeek;
         lv_obj_t *lblDayOfMonth;
@@ -75,6 +77,9 @@ namespace Pinetime {
         lv_style_t hmHandStyleInner;
         lv_style_t hmHandStyleOuter;
         lv_style_t secondsHandStyle;
+
+        lv_obj_t *chargingIcon;
+        lv_obj_t *bleIcon;
 
 //	lv_obj_t *lblDebug;
 
